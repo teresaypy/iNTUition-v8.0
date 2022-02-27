@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <link rel="stylesheet" href="style.css">
+    <!-- horizontal plt lib -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://code.highcharts.com/modules/histogram-bellcurve.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/7.6.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.6.2/firebase-database.js"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Karla:400,700&display=swap');
+
+        .font-family-karla {
+            font-family: karla;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tw-elements/dist/css/index.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+          }
+        }
+      }
+    </script>
+</head>
+
+<body class="layout">
+    <div id="overlay">
+        <svg version="1.1" id="L7" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve" style="width:20%; height:20%; margin:auto; margin-top:20%;">
+            <path fill="#fff" d="M31.6,3.5C5.9,13.6-6.6,42.7,3.5,68.4c10.1,25.7,39.2,38.3,64.9,28.1l-3.1-7.9c-21.3,8.4-45.4-2-53.8-23.3c-8.4-21.3,2-45.4,23.3-53.8L31.6,3.5z">
+                <animateTransform 
+                    attributeName="transform" 
+                    attributeType="XML" 
+                    type="rotate"
+                    dur="2s" 
+                    from="0 50 50"
+                    to="360 50 50" 
+                    repeatCount="indefinite" />
+            </path>
+            <path fill="#fff" d="M42.3,39.6c5.7-4.3,13.9-3.1,18.1,2.7c4.3,5.7,3.1,13.9-2.7,18.1l4.1,5.5c8.8-6.5,10.6-19,4.1-27.7c-6.5-8.8-19-10.6-27.7-4.1L42.3,39.6z">
+                <animateTransform 
+                    attributeName="transform" 
+                    attributeType="XML" 
+                    type="rotate"
+                    dur="1s" 
+                    from="0 50 50"
+                    to="-360 50 50" 
+                    repeatCount="indefinite" />
+            </path>
+            <path fill="#fff" d="M82,35.7C74.1,18,53.4,10.1,35.7,18S10.1,46.6,18,64.3l7.6-3.4c-6-13.5,0-29.3,13.5-35.3s29.3,0,35.3,13.5L82,35.7z">
+                <animateTransform 
+                    attributeName="transform" 
+                    attributeType="XML" 
+                    type="rotate"
+                    dur="2s" 
+                    from="0 50 50"
+                    to="360 50 50" 
+                    repeatCount="indefinite" />
+            </path>
+        </svg>
+    </div>
+
+    <script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+
+    <nav class="flex items-center justify-between flex-wrap bg-white pt-2 pb-2 pl-20" style="border-bottom: 1px solid #cad3d1;">
+        <div class="flex items-center flex-shrink-0 mr-6">
+            <img class = "logo"
+            src="./images/Logo.png"
+            alt="Logo"
+            />
+        </div>
+    </nav>
+
+    <div class="w-full h-5/6 flex flex-wrap">
+        <!-- Login Section -->
+        <div class="w-full md:w-1/2 flex flex-col">
+            <div class="flex flex-col justify-center md:justify-start my-auto pt-8 md:pt-0 px-8 md:px-24 lg:px-32">
+                <h1 style="font-size:2vw">Is your resume favoured by your future recruiter?</h1>
+                <div class="file-upload">
+                    <button class="file-upload-btn" type="button" onclick="$('.file-upload-input').trigger( 'click' )">Add Resume</button>
+
+                    <div class="pdf-upload-wrap">
+                        <input class="file-upload-input" type='file' onchange="readBinData(this);" accept=".pdf" />
+                        <div class="drag-text">
+                            <h3>Drag and drop a file or select add Resume</h3>
+                        </div>
+                    </div>                  
+                    
+                    <div class="file-upload-content">
+                        <!-- <img class="file-upload-image" src="#" alt="your image" /> -->
+                        <canvas id="pdfViewer"></canvas>
+                        <div class="remove-pdf-wrap">
+                            <button type="button" onclick="removeUpload()" class="remove-pdf">Remove <span class="pdf-title">Uploaded Resume</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="w-full md:w-1/2 flex flex-col">
+            <div
+                id="carouselDarkVariant"
+                class="carousel slide carousel-fade carousel-dark relative"
+                data-bs-ride="carousel"
+                style="margin-top:100px; margin-right: 30px; margin-left: 30px;"
+                >
+                <!-- Indicators -->
+                <div class="carousel-indicators absolute right-0 bottom-0 left-0 flex justify-center p-0 mb-4">
+                    <button
+                    data-bs-target="#carouselDarkVariant"
+                    data-bs-slide-to="0"
+                    class="active"
+                    aria-current="true"
+                    aria-label="Slide 1"
+                    ></button>
+                    <button
+                    data-bs-target="#carouselDarkVariant"
+                    data-bs-slide-to="1"
+                    aria-label="Slide 1"
+                    ></button>
+                    <button
+                    data-bs-target="#carouselDarkVariant"
+                    data-bs-slide-to="2"
+                    aria-label="Slide 1"
+                    ></button>
+                </div>
+
+                <!-- Inner -->
+                <div class="carousel-inner relative w-full overflow-hidden">
+                    <!-- Single item -->
+                    <div class="carousel-item active relative float-left w-full">
+                    <img
+                        src="/images/istockphoto-1137470880-612x612-removebg-preview.png"
+                        class="block w-full"
+                        alt="Motorbike Smoke"
+                    />
+                    <div class="carousel-caption hidden md:block absolute text-center">
+                        <h5 class="text-xl"><span style="background-color: white; padding:5px">Build</span></h5>
+                    </div>
+                    </div>
+
+                    <!-- Single item -->
+                    <div class="carousel-item relative float-left w-full">
+                    <img
+                        src="/images/blog-removebg-preview.png"
+                        class="block w-full"
+                        alt="Mountaintop"
+                    />
+                    <div class="carousel-caption hidden md:block absolute text-center">
+                        <h5 class="text-xl"><span style="background-color: white; padding:5px">Evaluate</span></h5>
+                    </div>
+                    </div>
+
+                    <!-- Single item -->
+                    <div class="carousel-item relative float-left w-full">
+                    <img
+                        src="/images/rank_resume-removebg-preview.png"
+                        class="block w-full"
+                        alt="Woman Reading a Book"
+                    />
+                    <div class="carousel-caption hidden md:block absolute text-center">
+                        <h5 class="text-xl"><span style="background-color: white; padding:5px">Rank</span></h5>
+                    </div>
+                    </div>
+                </div>
+                <!-- Inner -->
+
+                <!-- Controls -->
+                <button
+                    class="carousel-control-prev absolute top-0 bottom-0 flex items-center justify-center p-0 text-center border-0 hover:outline-none hover:no-underline focus:outline-none focus:no-underline left-0"
+                    type="button"
+                    data-bs-target="#carouselDarkVariant"
+                    data-bs-slide="prev"
+                >
+                    <span class="carousel-control-prev-icon inline-block bg-no-repeat" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button
+                    class="carousel-control-next absolute top-0 bottom-0 flex items-center justify-center p-0 text-center border-0 hover:outline-none hover:no-underline focus:outline-none focus:no-underline right-0"
+                    type="button"
+                    data-bs-target="#carouselDarkVariant"
+                    data-bs-slide="next"
+                >
+                    <span class="carousel-control-next-icon inline-block bg-no-repeat" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+                </div>
+            
+            <div class="charts" id="charts">
+                <figure class="highcharts-figure-company">
+                    <div id="container_company"></div>
+                </figure>
+    
+                <hr>
+    
+                <figure class="highcharts-figure-distribution">
+                    <div id="container_distribution"></div>
+                </figure>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tw-elements/dist/js/index.min.js"></script>
+</body>
+</html>
+
